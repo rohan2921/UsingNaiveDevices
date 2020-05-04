@@ -1,23 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart' as syspath;
 
 class ImageInput extends StatefulWidget {
+  final Function f;
+  ImageInput(this.f);
   @override
   _ImageInputState createState() => _ImageInputState();
 }
 
 class _ImageInputState extends State<ImageInput> {
   File _storedImage;
+
   Future<void> _addImage() async {
     final response = await ImagePicker.pickImage(
       source: ImageSource.camera,
       maxWidth: 500,
     );
+    if(response==null ) return;
     setState(() {
       
       _storedImage=response;
     });
+    final appDir= await syspath.getApplicationDocumentsDirectory();
+    final tempPath= path.basename(response.path);
+    final savedImage=await response.copy('${appDir.path}/$tempPath');
+    widget.f(savedImage);
+    
   }
 
   @override
